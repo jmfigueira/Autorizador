@@ -76,7 +76,7 @@ namespace authorizer_service.Services
                     }
                 }
 
-                if (user.AvailableLimit > 0 && user.AvailableLimit >= transaction.Amount)
+                if (user.AvailableLimit > 0 && user.AvailableLimit >= transaction.Amount && response.Violations.Count == 0)
                 {
                     var newLimit = user.AvailableLimit - transaction.Amount;
 
