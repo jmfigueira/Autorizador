@@ -34,7 +34,7 @@ namespace authorizer
                 command = Console.ReadLine();
 
                 if (!_commandValidator.IsValid(command))
-                    Console.WriteLine($"Sorry, input: '{command}' not recognized.");
+                    Console.WriteLine($"Sorry, input: '{command}' not recognized.\n\n>>");
                 else
                 {
                     try
@@ -67,7 +67,7 @@ namespace authorizer
                     }
                     catch
                     {
-                        Console.WriteLine($"Sorry, input: '{command}' not recognized.");
+                        Console.WriteLine($"Sorry, input: '{command}' not recognized.\n\n>>");
                     }
                 }
             }

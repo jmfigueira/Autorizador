@@ -40,48 +40,50 @@ namespace authorizer_service.Services
 
             if (!user.ActiveCard)
                 response.Violations.Add(Enumerations.GetEnumDescription(Violations.CardNotActive));
-
-            if (user.AvailableLimit < transaction.Amount)
+            else
             {
-                response.Violations.Add(Enumerations.GetEnumDescription(Violations.InsufficientLimit));
-            }
+                if (user.AvailableLimit < transaction.Amount)
+                {
+                    response.Violations.Add(Enumerations.GetEnumDescription(Violations.InsufficientLimit));
+                }
 
-            var allTransactions = _transactionRepository.GetAllTransactions();
+                var allTransactions = _transactionRepository.GetAllTransactions();
 
-            if (allTransactions.Count() >= 3)
-            {
-                var hsfi = true;
+                if (allTransactions.Count() >= 3)
+                {
+                    var hsfi = true;
+
+                    foreach (var tr in allTransactions)
+                    {
+                        var diferencaDatas = transaction.Time - tr.Time;
+
+                        if (diferencaDatas >= new TimeSpan(0, 2, 0))
+                            hsfi = false;
+                    }
+
+                    if (hsfi)
+                        response.Violations.Add(Enumerations.GetEnumDescription(Violations.HighFrequencySmallInterval));
+                }
 
                 foreach (var tr in allTransactions)
                 {
-                    var diferencaDatas = transaction.Time - tr.Time;
+                    if (tr.Amount == transaction.Amount && tr.Merchant == transaction.Merchant)
+                    {
+                        var diferencaDatas = transaction.Time - tr.Time;
 
-                    if (diferencaDatas >= new TimeSpan(0, 2, 0))
-                        hsfi = false;
+                        if (diferencaDatas <= new TimeSpan(0, 2, 0))
+                            response.Violations.Add(Enumerations.GetEnumDescription(Violations.DoubledTransaction));
+                    }
                 }
 
-                if (hsfi)
-                    response.Violations.Add(Enumerations.GetEnumDescription(Violations.HighFrequencySmallInterval));
-            }
-
-            foreach (var tr in allTransactions)
-            {
-                if (tr.Amount == transaction.Amount && tr.Merchant == transaction.Merchant)
+                if (user.AvailableLimit > 0 && user.AvailableLimit >= transaction.Amount)
                 {
-                    var diferencaDatas = transaction.Time - tr.Time;
+                    var newLimit = user.AvailableLimit - transaction.Amount;
 
-                    if (diferencaDatas <= new TimeSpan(0, 2, 0))
-                        response.Violations.Add(Enumerations.GetEnumDescription(Violations.DoubledTransaction));
+                    _transactionRepository.Insert(transaction);
+
+                    user = _accountRepository.UpdateAvailableLimit(_accountRepository.UserID(), newLimit);
                 }
-            }
-
-            if (user.AvailableLimit > 0 && user.AvailableLimit >= transaction.Amount)
-            {
-                var newLimit = user.AvailableLimit - transaction.Amount;
-
-                _transactionRepository.Insert(transaction);
-
-                user = _accountRepository.UpdateAvailableLimit(_accountRepository.UserID(), newLimit);
             }
 
             response.Account = new Model.Account()
@@ -89,7 +91,6 @@ namespace authorizer_service.Services
                 ActiveCard = user.ActiveCard,
                 AvailableLimit = user.AvailableLimit
             };
-
             return JsonConvert.SerializeObject(response);
         }
     }
