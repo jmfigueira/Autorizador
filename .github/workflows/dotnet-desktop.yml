@@ -14,12 +14,11 @@ jobs:
       matrix:
         configuration: [Debug, Release]
 
-    runs-on: windows-latest  # For a list of available runner types, refer to
-                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+    runs-on: windows-latest
 
     env:
-      Solution_Name: authorizer.sln                        # Replace with your solution name, i.e. MyWpfApp.sln.
-      Test_Project_Path: authorizer_tests\authorizer_tests.csproj                 # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
+      Solution_Name: authorizer.sln                        
+      Test_Project_Path: authorizer_tests\authorizer_tests.csproj
 
     steps:
     - name: Checkout
