@@ -1,5 +1,5 @@
 # Code Challenge - Autorizador
-Este é meu teste de software para uma posição de Engenheiro de Software.
+Teste de software.
 
 # Resumo
 Tendo em vista todas as oportuidades que o mercado oferece, eu viso trabalhar em uma empresa onde o planejamento e a tecnologia realmente importam.
